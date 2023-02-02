@@ -25,13 +25,24 @@ struct ContentView: View {
         return amountPerPerson
     }
     
+    var totalAmountOfCheck: Double {
+        let tipSelection = Double(tipPercentage)
+        let tipValue = checkAmount / 100 * tipSelection
+        
+        return checkAmount + tipValue
+    }
+    
+    var amountFormatter: FloatingPointFormatStyle<Double>.Currency {
+        return .currency(code: Locale.current.currencyCode ?? "USD")
+    }
+    
     let tipPercentages = [10, 15, 20, 25, 0]
     
     var body: some View {
         NavigationView {
             Form {
                 Section {
-                    TextField("Amount", value: $checkAmount, format: .currency(code: Locale.current.currencyCode ?? "USD"))
+                    TextField("Amount", value: $checkAmount, format: amountFormatter)
                         .keyboardType(.decimalPad)
                         .focused($amountIsFocused)
                     
@@ -44,20 +55,23 @@ struct ContentView: View {
                 
                 Section {
                     Picker("Select a tip", selection: $tipPercentage) {
-                        ForEach(tipPercentages, id: \.self) {
+                        ForEach(0..<101) {
                             Text($0, format: .percent)
                         }
                     }
-                    .pickerStyle(.segmented)
                 } header : {
-                    Text("How much tip do you want to leave?")
+                    Text("How much tip do you want to tip?")
                 }
                 
-                Section {
-                    Text(totalPerPerson, format: .currency(code: Locale.current.currencyCode ?? "USD"))
+                Section(header: Text("Amount Per Person")) {
+                    Text(totalPerPerson, format: amountFormatter)
+                }
+                
+                Section(header: Text("Total Amount")) {
+                    Text(totalAmountOfCheck, format: amountFormatter)
                 }
             }
-            .navigationTitle("we split")
+            .navigationTitle("WeSplit")
             .toolbar {
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
